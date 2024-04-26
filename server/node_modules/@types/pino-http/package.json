@@ -1,0 +1,42 @@
+{
+    "name": "@types/pino-http",
+    "version": "5.8.4",
+    "description": "TypeScript definitions for pino-http",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/pino-http",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Christian Rackerseder",
+            "githubUsername": "screendriver",
+            "url": "https://github.com/screendriver"
+        },
+        {
+            "name": "Jeremy Forsythe",
+            "githubUsername": "jdforsythe",
+            "url": "https://github.com/jdforsythe"
+        },
+        {
+            "name": "Griffin Yourick",
+            "githubUsername": "tough-griff",
+            "url": "https://github.com/tough-griff"
+        },
+        {
+            "name": "Jorge Barnaby",
+            "githubUsername": "yorch",
+            "url": "https://github.com/yorch"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/pino-http"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/pino": "6.3"
+    },
+    "typesPublisherContentHash": "235e6bf330782b628adc5462df9f307d5326d139061e714b880598ed56b984cd",
+    "typeScriptVersion": "4.5"
+}
