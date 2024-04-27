@@ -1,8 +1,8 @@
 <template>
   <div>
     <b-button class="mx-2 my-2" size="sm" @click="socket.emit('new-game')">New Game</b-button>
-    <b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>
     <b-badge class="mr-2 mb-2">{{ phase }}</b-badge>
+    <b-badge class="mr-2 mb-2" :variant="myTurn ? 'primary' : 'secondary'">turn: {{ currentTurnPlayerIndex }}</b-badge>
     <b-button class="mx-2 my-2" size="sm" @click="showConfigModal = true">Configure</b-button>
     <b-modal v-model="showConfigModal" @shown="loadConfig">
       <template #modal-title>
@@ -38,7 +38,7 @@
         :wildCard="wildCard" @play="playCard" />
     </div>
     <b-button class="mx-2 my-2" size="sm" @click="drawCard" :disabled="!myTurn">Draw Card</b-button>
-    <div v-if="phase === 'play'"  v-for="(player, i) in fewCardPlayers" :key="i">
+    <div v-if="phase === 'play'" v-for="(player, i) in fewCardPlayers" :key="i">
       <pre>{{ player }} have only 1 or fewer cards left in their hands </pre>
     </div>
   </div>
