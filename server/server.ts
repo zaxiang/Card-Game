@@ -32,6 +32,7 @@ const passportStrategies = [
 const mongoUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
 const client = new MongoClient(mongoUrl);
 let db: Db;
+let gameConfig: Collection<Config>
 
 // set up Express
 const app = express();
@@ -95,16 +96,16 @@ io.use(wrap(sessionMiddleware));
 // hard-coded game configuration
 const playerUserIds = ["zx122", "user1", "user2"];
 // let gameState = createEmptyGame(playerUserIds, 1, 10);
-let gameState = createEmptyGame(playerUserIds, 5, 2, 13, "Q")
+let gameState = createEmptyGame(playerUserIds, 5, 13, 4, "Q")
 
 
 //added functionality for dynamic configuration (form)
-let gameConfig: Config = {
-  numberOfDecks: 2,
-  rankLimit: 13,
-  suitLimit: 4,
-  wildCard: "Q",
-};
+// let gameConfig: Config = {
+//   numberOfDecks: 5,
+//   rankLimit: 13,
+//   suitLimit: 4,
+//   wildCard: "Q",
+// };
 
 function emitUpdatedCardsForPlayers(cards: Card[], newGame = false) {
   gameState.playerNames.forEach((_, i) => {
@@ -173,10 +174,19 @@ io.on("connection", (client) => {
   }
   emitGameState();
 
-  client.on("action", (action: Action) => {
+  client.on("action", async (action: Action) => {
     if (typeof playerIndex === "number") {
-      const updatedCards = doAction(gameState, { ...action, playerIndex }, gameConfig.wildCard);
-      emitUpdatedCardsForPlayers(updatedCards);
+      const config = await gameConfig.findOne({configurationId: "default"});
+      if (config) {
+        // Game configuration found, use it
+        const updatedCards = doAction(gameState, { ...action, playerIndex }, config.wildCard);
+        emitUpdatedCardsForPlayers(updatedCards);
+      } else {
+        // No game configuration found, handle accordingly
+        console.log("In Action: No game configuration found with configurationID 'default'");
+      }
+      // const updatedCards = doAction(gameState, { ...action, playerIndex }, gameConfig.wildCard);
+      // emitUpdatedCardsForPlayers(updatedCards);
     } else {
       // no actions allowed from "all"
     }
@@ -192,13 +202,22 @@ io.on("connection", (client) => {
     );
   });
 
-  client.on("new-game", () => {
+  client.on("new-game", async () => {
     console.log("New game event received on the server");
-    // gameState = createEmptyGame(gameState.playerNames, 1, 2);
-    gameState = createEmptyGame(gameState.playerNames, gameConfig.numberOfDecks, gameConfig.rankLimit, gameConfig.suitLimit, gameConfig.wildCard)
-    const updatedCards = Object.values(gameState.cardsById);
-    emitUpdatedCardsForPlayers(updatedCards, true);
-    io.to("all").emit("all-cards", updatedCards);
+    const config = await gameConfig.findOne({configurationId: "default"});
+      if (config) {
+        gameState = createEmptyGame(gameState.playerNames, config.numberOfDecks, config.rankLimit, config.suitLimit, config.wildCard)
+        const updatedCards = Object.values(gameState.cardsById);
+        emitUpdatedCardsForPlayers(updatedCards, true);
+        io.to("all").emit("all-cards", updatedCards);
+      } else {
+        console.log("In new-game: No game configuration found with configurationID 'default'");
+      }
+    
+    // gameState = createEmptyGame(gameState.playerNames, gameConfig.numberOfDecks, gameConfig.rankLimit, gameConfig.suitLimit, gameConfig.wildCard)
+    // const updatedCards = Object.values(gameState.cardsById);
+    // emitUpdatedCardsForPlayers(updatedCards, true);
+    // io.to("all").emit("all-cards", updatedCards);
     io.emit(
       "game-state",
       playerIndex,
@@ -212,13 +231,17 @@ io.on("connection", (client) => {
 
 
   //added functionalities for dynamic configuration
-  client.on("get-config", () => {
-    console.log("server side: get-config");
-    client.emit("get-config-reply", gameConfig);
-    console.log("server side: emit get-config-reply");
+  client.on("get-config", async () => {
+    //client.emit("get-config-reply", gameConfig);
+    const config = await gameConfig.findOne({ configurationId: "default" });
+    if (config) {
+      client.emit("get-config-reply", config);
+    } else {
+      console.log("In get-config: No game configuration found with configurationID 'default'");
+    }
   });
 
-  client.on("update-config", (newConfig: Config) => {
+  client.on("update-config", async (newConfig: Config) => {
     console.log("server side: update-config");
     // Perform type and field checks on the new configuration
     const isValidConfig = typeof newConfig === "object"
@@ -227,23 +250,39 @@ io.on("connection", (client) => {
       && typeof newConfig.suitLimit === "number"
       && typeof newConfig.wildCard === "string";
     // Check for extra fields
-    const hasExtraFields = Object.keys(newConfig).length !== 4;
+    // const hasExtraFields = Object.keys(newConfig).length !== 4;
 
-    if (!isValidConfig || hasExtraFields) {
+    if (!isValidConfig) {
       // Invalid configuration, send update-config-reply with false
       client.emit("update-config-reply", false);
       console.log("server side: false update-config-reply");
     } else {
+
+      // Update the game configuration in the database
+      const result = await gameConfig.updateOne(
+        { configurationId: "default" },
+        {
+          $set: { ...newConfig}
+        }
+      );
+
+      if (result.modifiedCount === 0 && result.upsertedCount === 0) {
+        // No existing document was modified and no new document was inserted
+        console.log("In update-config: Failed to update game configuration.");
+        client.emit("update-config-reply", false);
+        return;
+      }
+
+
       // Valid configuration, wait for 2 seconds and send update-config-reply with true
-      
-      setTimeout(() => {
-        gameConfig.numberOfDecks = newConfig.numberOfDecks;
-        gameConfig.rankLimit = newConfig.rankLimit;
-        gameConfig.suitLimit = newConfig.suitLimit;
-        gameConfig.wildCard = newConfig.wildCard;
+      setTimeout( async () => {
+        // gameConfig.numberOfDecks = newConfig.numberOfDecks;
+        // gameConfig.rankLimit = newConfig.rankLimit;
+        // gameConfig.suitLimit = newConfig.suitLimit;
+        // gameConfig.wildCard = newConfig.wildCard;
         
         // Perform actions needed for a new game like the new-game above
-        gameState = createEmptyGame(gameState.playerNames, gameConfig.numberOfDecks, gameConfig.rankLimit, gameConfig.suitLimit, gameConfig.wildCard);
+        gameState = createEmptyGame(gameState.playerNames, newConfig.numberOfDecks, newConfig.rankLimit, newConfig.suitLimit, newConfig.wildCard);
         const updatedCards = Object.values(gameState.cardsById);
         emitUpdatedCardsForPlayers(updatedCards, true);
         io.to("all").emit(
@@ -285,7 +324,8 @@ app.get("/api/user", (req, res) => {
 // connect to Mongo
 client.connect().then(() => {
   logger.info("connected successfully to MongoDB");
-  db = client.db("test");
+  db = client.db("final_project");
+  gameConfig = db.collection("gameConfiguration");
   // operators = db.collection('operators')
   // orders = db.collection('orders')
   // customers = db.collection('customers')

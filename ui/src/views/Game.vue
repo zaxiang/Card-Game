@@ -53,8 +53,9 @@ import { Card, GamePhase, Action, CardId, Config } from "../../../server/model"
 //Config form
 const showConfigModal = ref(false);
 const configForm = ref<Config>({
-  numberOfDecks: 2,
-  rankLimit: 3,
+  configurationId: "default",
+  numberOfDecks: 5,
+  rankLimit: 13,
   suitLimit: 4,
   wildCard: "Q",
 });

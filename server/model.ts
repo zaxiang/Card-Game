@@ -19,6 +19,7 @@ export interface Card {
 
 // dynamically configuring
 export interface Config {
+  configurationId: string, // Ensure configurationId is provided
   numberOfDecks: number;
   rankLimit: number;
   suitLimit: number;

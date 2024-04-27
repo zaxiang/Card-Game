@@ -30,6 +30,7 @@
   },
   "scripts": {
     "start": "ts-node-dev --respawn server.ts",
-    "build": "node build.js"
+    "build": "node build.js",
+    "setup": "ts-node setupMongo.ts"
   }
 }
