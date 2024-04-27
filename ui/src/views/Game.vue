@@ -38,7 +38,7 @@
         :wildCard="wildCard" @play="playCard" />
     </div>
     <b-button class="mx-2 my-2" size="sm" @click="drawCard" :disabled="!myTurn">Draw Card</b-button>
-    <div v-for="(player, i) in fewCardPlayers" :key="i">
+    <div v-if="phase === 'play'"  v-for="(player, i) in fewCardPlayers" :key="i">
       <pre>{{ player }} have only 1 or fewer cards left in their hands </pre>
     </div>
   </div>
@@ -132,6 +132,7 @@ socket.on("game-state", (newPlayerIndex: number, newfewCardPlayers: string[], ne
   phase.value = newPhase
   playCount.value = newPlayCount
   wildCard.value = newWildCard
+  fewCardPlayers.value = newfewCardPlayers
 })
 
 function doAction(action: Action) {
