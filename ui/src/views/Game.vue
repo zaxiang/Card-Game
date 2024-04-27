@@ -48,7 +48,47 @@
 import { computed, ref, Ref } from 'vue'
 import { io } from "socket.io-client"
 import AnimatedCard from '../components/AnimatedCard.vue'
-import { Card, GamePhase, Action, CardId, Config } from "../../../server/model"
+// import { Card, GamePhase, Action, CardId, Config } from "../../../server/model"
+
+const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+const SUITS = ["♦️", "♥️", "♣️", "♠️"]
+
+type CardId = string
+type LocationType = "unused" | "last-card-played" | "player-hand"
+
+interface Card {
+  id: CardId
+  rank: typeof RANKS[number]
+  suit: typeof SUITS[number]
+  locationType: LocationType
+  playerIndex: number | null
+  positionInLocation: number | null
+}
+
+interface Config {
+  configurationId: string, // Ensure configurationId is provided
+  numberOfDecks: number;
+  rankLimit: number;
+  suitLimit: number;
+  wildCard: typeof RANKS[number]
+}
+
+type GamePhase = "initial-card-dealing" | "play" | "game-over"
+
+
+interface DrawCardAction {
+  action: "draw-card"
+  playerIndex: number
+}
+
+interface PlayCardAction {
+  action: "play-card"
+  playerIndex: number
+  cardId: CardId
+}
+
+type Action = DrawCardAction | PlayCardAction
+
 
 //Config form
 const showConfigModal = ref(false);

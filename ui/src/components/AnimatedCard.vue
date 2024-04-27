@@ -16,7 +16,35 @@
 </style>
 
 <script setup lang="ts">
-import {RANKS, CardId, Card, formatCard} from "../../../server/model";
+// import { CardId, Card, formatCard } from "../../../server/model";
+
+
+const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+const SUITS = ["♦️", "♥️", "♣️", "♠️"]
+
+type CardId = string
+type LocationType = "unused" | "last-card-played" | "player-hand"
+
+interface Card {
+  id: CardId
+  rank: typeof RANKS[number]
+  suit: typeof SUITS[number]
+  locationType: LocationType
+  playerIndex: number | null
+  positionInLocation: number | null
+}
+
+function formatCard(card: Card, includeLocation = false) {
+  let paddedCardId = card.id
+  while (paddedCardId.length < 3) {
+    paddedCardId = " " + paddedCardId
+  }
+  return `[${paddedCardId}] ${card.rank}${card.suit}${(card.rank.length === 1 ? " " : "")}`
+    + (includeLocation
+      ? ` ${card.locationType} ${card.playerIndex ?? ""}`
+      : ""
+    )
+}
 
 // props
 interface Props {
@@ -33,6 +61,7 @@ const props = withDefaults(defineProps<Props>(), {
   cards: () => [],
   wildCard: "Q",
 })
+console.log(props)
 
 // events
 const emit = defineEmits<{
