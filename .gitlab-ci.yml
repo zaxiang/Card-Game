@@ -19,6 +19,7 @@
 stages:          # List of stages for jobs, and their order of execution
   - build
   - deploy
+  - test
 
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
@@ -35,3 +36,10 @@ deploy-job:      # This job runs in the deploy stage.
   script:
     - kubectl delete -f k8s/
     - kubectl create -f k8s/
+
+e2e-test-job:
+  stage: test
+  image: card-game:latest
+  script:
+    - echo "Running E2E tests"
+    - npx playwright test --project=webkit
