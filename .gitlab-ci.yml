@@ -35,4 +35,3 @@ deploy-job:      # This job runs in the deploy stage.
   script:
     - kubectl delete -f k8s/
     - kubectl create -f k8s/
-    - echo "Application successfully deployed."
