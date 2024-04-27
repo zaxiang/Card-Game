@@ -27,7 +27,6 @@ build-job:       # This job runs in the build stage, which runs first.
     - docker build -t card-game-server .
     - cd ../ui
     - docker build -t card-game-ui .
-    - echo "build-job complete."
 
 
 deploy-job:      # This job runs in the deploy stage.
