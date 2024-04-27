@@ -23,7 +23,6 @@ stages:          # List of stages for jobs, and their order of execution
 build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
-    - echo "build-job start."
     - cd server
     - docker build -t card-game-server .
     - cd ../ui
