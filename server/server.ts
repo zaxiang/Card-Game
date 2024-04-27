@@ -29,15 +29,19 @@ const passportStrategies = [
 ]
 
 // set up Mongo
-const mongoUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
-const client = new MongoClient(mongoUrl);
+const url = process.env.MONGO_URL || "mongodb://127.0.0.1:27017";
+const client = new MongoClient(url);
 let db: Db;
 let gameConfig: Collection<Config>
 
 // set up Express
 const app = express();
 const server = createServer(app);
-const port = parseInt(process.env.PORT) || 8228;
+
+// const port = parseInt(process.env.PORT) || 8228;
+console.log("SERVER_PORT", JSON.stringify(process.env.SERVER_PORT))
+const port = parseInt(process.env.SERVER_PORT || "8228")
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -63,7 +67,8 @@ const sessionMiddleware = session({
   cookie: { secure: false },
 
   store: MongoStore.create({
-    mongoUrl: "mongodb://127.0.0.1:27017",
+    mongoUrl:url,
+    // mongoUrl: "mongodb://127.0.0.1:27017",
     ttl: 14 * 24 * 60 * 60, // 14 days
   }),
 });
@@ -237,7 +242,7 @@ io.on("connection", (client) => {
     if (config) {
       client.emit("get-config-reply", config);
     } else {
-      console.log("In get-config: No game configuration found with configurationID 'default'");
+      console.log("In get-config: No game configuration found with configurationId 'default'");
     }
   });
 
@@ -323,9 +328,9 @@ app.get("/api/user", (req, res) => {
 
 // connect to Mongo
 client.connect().then(() => {
-  logger.info("connected successfully to MongoDB");
   db = client.db("final_project");
   gameConfig = db.collection("gameConfiguration");
+  logger.info("connected successfully to MongoDB");
   // operators = db.collection('operators')
   // orders = db.collection('orders')
   // customers = db.collection('customers')
@@ -346,7 +351,7 @@ client.connect().then(() => {
     const params = {
       scope: "openid profile email",
       nonce: generators.nonce(),
-      redirect_uri: "http://localhost:8221/login-callback",
+      redirect_uri: "http://localhost:31000/login-callback",
       state: generators.state(),
     };
 

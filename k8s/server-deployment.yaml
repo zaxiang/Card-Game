@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: server
+  name: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+        - image: card-game-server
+          name: server
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8228
+              name: server
+          env:
+            - name: MONGO_URL
+              value: mongodb://db
+            - name: DISABLE_SECURITY
+              value: alpha-beta-delta
+            - name: SERVER_PORT
+              value: "8228"

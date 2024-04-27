@@ -20,18 +20,21 @@ export default defineConfig({
     }),
   ],
 
-	server: {
-		port: 8221,
+  server: {
+    port: parseInt(process.env.UI_PORT || "8221"),
+		// port: 8221,
 		proxy: {
 			"^/socket.io": {
-				target: "http://127.0.0.1:8228",
+				target: `http://127.0.0.1:${process.env.SERVER_PORT || "8228"}`,
         ws: true
 			},
       "^/login-callback": {
-				target: "http://127.0.0.1:8228",
+        target: `http://127.0.0.1:${process.env.SERVER_PORT || "8228"}`,
+        ws: true
 			},
       "^/api": {
-				target: "http://127.0.0.1:8228",
+        target: `http://127.0.0.1:${process.env.SERVER_PORT || "8228"}`,
+        ws: true
 			},
     }
 	},
