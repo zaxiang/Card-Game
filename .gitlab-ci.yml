@@ -36,6 +36,7 @@ deploy-job:      # This job runs in the deploy stage.
   script:
     - kubectl delete -f k8s/
     - kubectl create -f k8s/
+    - echo "done deployment"
 
 # e2e-test-job:
 #   stage: test
