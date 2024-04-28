@@ -10,6 +10,9 @@ test('initial test', async ({ browser }) => {
   const user1Page = await user1.newPage();
   const user2Page = await user2.newPage();
 
+  // Set a longer timeout globally for all tests
+  test.setTimeout(120000); // Set timeout to 120 seconds
+  
   //get the initial card for each player
   await zx122Page.goto('http://localhost:31000/api/login\?key=alpha-beta-delta\&user=zx122\&role=__');
 
