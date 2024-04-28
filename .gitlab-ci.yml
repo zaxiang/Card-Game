@@ -38,8 +38,9 @@ deploy-job:      # This job runs in the deploy stage.
     - kubectl create -f k8s/
     - echo "done deployment"
 
-# e2e-test-job:
-#   stage: test
-#   script:
-#     - echo "Running E2E tests"
-#     - npx playwright test --project=webkit
+e2e-test-job:
+  stage: test
+  script:
+    - echo "Running E2E tests"
+    - npx playwright test --project=webkit
+    - echo "Done Running E2E test"
