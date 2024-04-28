@@ -10,9 +10,6 @@ test('initial test', async ({ browser }) => {
   const user1Page = await user1.newPage();
   const user2Page = await user2.newPage();
 
-  // Set a longer timeout globally for all tests
-  test.setTimeout(120000); // Set timeout to 120 seconds
-  
   //get the initial card for each player
   await zx122Page.goto('http://localhost:31000/api/login\?key=alpha-beta-delta\&user=zx122\&role=__');
 
@@ -138,21 +135,3 @@ test('initial test', async ({ browser }) => {
     await user2Page.getByRole('button', { name: 'Draw Card' }).click();
   }
 });
-
-
-// test('has title', async ({ page }) => {
-//   await page.goto('https://playwright.dev/');
-
-//   // Expect a title "to contain" a substring.
-//   await expect(page).toHaveTitle(/Playwright/);
-// });
-
-// test('get started link', async ({ page }) => {
-//   await page.goto('https://playwright.dev/');
-
-//   // Click the get started link.
-//   await page.getByRole('link', { name: 'Get started' }).click();
-
-//   // Expects page to have a heading with the name of Installation.
-//   await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
-// });
